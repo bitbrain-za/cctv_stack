@@ -1,0 +1,191 @@
+mqtt:
+  host: 10.10.10.10
+  port: 1883
+  user: test
+  password: test
+  topic_prefix: frigate
+  stats_interval: 60
+
+go2rtc:
+  streams:
+    lounge:
+      - rtsp://username:password@10.10.10.11:554/Streaming/Channels/101
+    driveway:
+      - rtsp://username:password@10.10.10.11:554/Streaming/Channels/201
+    deck:
+      - rtsp://username:password@10.10.10.11:554/Streaming/Channels/301
+    entrance:
+      - rtsp://username:password@10.10.10.11:554/Streaming/Channels/401
+    kitchen:
+      - rtsp://10.10.10.12:554/live/0/MAIN
+
+ffmpeg:
+  hwaccel_args: preset-jetson-h264
+
+cameras:
+  lounge:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/102
+          roles:
+            - detect
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/101
+          roles:
+            - record
+    mqtt:
+      enabled: true
+    review:
+      alerts:
+        labels:
+          - person
+      detections:
+        labels:
+          - dog
+    motion:
+      mask: 0.017,0.049,0.017,0.081,0.285,0.086,0.285,0.053
+
+  driveway:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/202
+          roles:
+            - detect
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/201
+          roles:
+            - record
+    mqtt:
+      enabled: true
+    review:
+      alerts:
+        labels:
+          - person
+          - car
+          - motorcycle
+        required_zones:
+          - gate
+      detections:
+        labels:
+          - dog
+    objects: {}
+    motion:
+      mask: 0.017,0.053,0.019,0.079,0.285,0.078,0.286,0.058
+    zones:
+      gate:
+        coordinates: 0.104,0.313,0.745,0.256,0.981,0.955,0.011,0.985
+        loitering_time: 0
+
+  deck:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/302
+          roles:
+            - detect
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/301
+          roles:
+            - record
+    mqtt:
+      enabled: true
+    review:
+      alerts:
+        labels:
+          - person
+      detections:
+        labels:
+          - dog
+          - bird
+    motion:
+      mask: 0.017,0.055,0.018,0.078,0.287,0.079,0.287,0.058
+
+  entrance:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/402
+          roles:
+            - detect
+        - path: rtsp://username:password@10.10.10.11:554/Streaming/Channels/401
+          roles:
+            - record
+    mqtt:
+      enabled: true
+    review:
+      alerts:
+        labels:
+          - person
+      detections:
+        labels:
+          - dog
+    objects:
+      filters:
+        person:
+          mask: 0.713,0.928,0.721,0.766,0.791,0.767,0.801,0.932
+    motion:
+      mask: 0.016,0.05,0.021,0.084,0.286,0.083,0.29,0.057
+      
+  kitchen:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://10.10.10.12:554/live/0/SUB
+          roles:
+            - detect
+        - path: rtsp://10.10.10.12:554/live/0/MAIN
+          roles:
+            - record
+    mqtt:
+      enabled: true
+    review:
+      alerts:
+        labels:
+          - person
+      detections:
+        labels: []
+
+birdseye:
+  enabled: true
+  mode: objects
+
+detectors:
+  tensorrt:
+    type: tensorrt
+    device: 0
+    input_tensor: nchw
+
+model:
+  path: /config/model_cache/tensorrt/yolov7-tiny-416.trt
+  input_tensor: nchw
+  input_pixel_format: rgb
+  width: 416
+  height: 416
+
+detect:
+  fps: 5
+
+objects:
+  track:
+    - person
+    - car
+    - motorcycle
+    - bird
+    - dog
+
+snapshots:
+  enabled: true
+
+record:
+  enabled: true
+  alerts:
+    retain:
+      days: 14
+      mode: active_objects
+  detections:
+    retain:
+      days: 7
+      mode: active_objects
+
+
+
+version: 0.15-1

@@ -1,0 +1,29 @@
+services:
+  frigate:
+    privileged: true
+    environment:
+      - YOLO_MODELS=yolov7-tiny-416
+      - USE_FP16=false
+    container_name: frigate
+    runtime: nvidia
+    volumes:
+      - ./frigate_config:/config
+      - /mnt/frigate:/media/frigate
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "5000:5000"
+      - "8554:8554"
+      - "8971:8971"
+    image: ghcr.io/blakeblackshear/frigate:stable-tensorrt-jp4
+    shm_size: "2gb"
+    restart: unless-stopped
+
+  frigate_plate_recognizer:
+    image: frigate_alpr:latest
+    container_name: frigate_plate_recognizer  
+    volumes:
+      - ./alpr_config:/config
+    restart: unless-stopped

@@ -1,0 +1,23 @@
+frigate:
+  frigate_url: http://<replace with your firgate device IP>:5000
+  mqtt_server: 123.123.123.123 # replace with your broker details
+  mqtt_port: 1883
+  mqtt_username: test # replace with your mqtt username
+  mqtt_password: test # replace with your mqtt password
+  main_topic: frigate
+  return_topic: plate_recognizer
+  frigate_plus: false
+  camera:
+    - driveway
+  objects:
+    - car
+    - motorcycle
+  min_score: .7
+  watched_plates: #list of plates to watch.
+    -  xxxxxx
+  fuzzy_match: 0.8
+plate_recognizer:
+  token: xxxxxxxxxx
+  regions:
+    - za
+logger_level: INFO
